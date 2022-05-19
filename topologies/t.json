@@ -1,0 +1,8 @@
+{
+    "id": "top2",
+    "components": [
+        {
+            "type": "nmos"
+        }
+    ]
+}
