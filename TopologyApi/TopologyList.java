@@ -1,6 +1,9 @@
 package TopologyApi;
 
+import java.util.Collection;
 import java.util.LinkedList;
+
+import org.json.simple.JSONObject;
 
 public class TopologyList {
     LinkedList<Topology> topologies = null;
@@ -25,6 +28,10 @@ public class TopologyList {
         topologies.add(topology);
     }
 
+    /**
+     * 
+     * @return {@link LinkedList <{@link Component}>
+     */
     public LinkedList<Topology> getCurrentTopologies() {
         return topologies;
     }
@@ -76,16 +83,32 @@ public class TopologyList {
      * @return {@link LinkedList <{@link Component}>
      */
     public LinkedList<Component> getTopologyComponents(String topologyId) {
-        for (Topology t : topologies) {
-            if (t.getId().equals(topologyId)) {
-                return t.getComponents();
+        for (Topology topology : topologies) {
+            if (topology.getId().equals(topologyId)) {
+                return topology.getComponents();
             }
         }
         return null;
     }
 
-    // public getConnectedDevicesbyNetlist(String topology, String netlist){
+    /**
+     * return LinkedList of {@link Component} class of the components (devices) that
+     * connected.
+     * 
+     * @param topology
+     * @return {@link LinkedList <{@link Component}>
+     */
+    public LinkedList<Component> getDevicesWithNetlistNode(String topologyId, String netlistNodeID) {
+        LinkedList<Component> connectedDevices = new LinkedList<>();
+        LinkedList<Component> components = getTopologyComponents(topologyId);
 
-    // }
+        for (Component component : components) {
+            Collection values = component.getNetlist().values();
+            if (values.contains(netlistNodeID)) {
+                connectedDevices.add(component);
+            }
+        }
+        return connectedDevices;
+    }
 
 }
