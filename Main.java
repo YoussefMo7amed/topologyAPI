@@ -18,9 +18,9 @@ class Main {
             jsonObject = readJSON.read();
 
             topology = new Topology(jsonObject);
-
+            System.out.println(topology.getComponentsTypes());
         } catch (Exception e) {
-
+            
         } finally {
             readJSON.close();
         }

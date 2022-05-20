@@ -1,23 +1,21 @@
 package TopologyApi;
 
+import java.text.ParseException;
+import java.util.LinkedList;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import java.util.LinkedList;
-
-import TopologyApi.Device;
 
 public class Topology {
     private JSONObject jsonObject;
     private String id;
-    private LinkedList<Device> devices;
+    private LinkedList<Component> componentsList;
 
     public Topology(JSONObject jsonObject) {
         this.jsonObject = jsonObject;
         extractID(jsonObject);
-        extractDevices(jsonObject);
+        extractComponents(jsonObject);
     }
 
     public Topology(String id) {
@@ -27,13 +25,13 @@ public class Topology {
 
     public Topology(String id, String components) {
         this.id = id;
-        extractDevices(components);
+        extractComponents(components);
         createObject(id, components);
     }
 
-    public Topology(String id, LinkedList<Device> components) {
+    public Topology(String id, LinkedList<Component> components) {
         this.id = id;
-        devices = components;
+        componentsList = components;
         createObject(id);
     }
 
@@ -41,27 +39,28 @@ public class Topology {
         this.id = (String) jsonObject.get("id");
     }
 
-    private void extractDevices(JSONObject jsonObject) {
+    private void extractComponents(JSONObject jsonObject) {
         JSONArray components = (JSONArray) jsonObject.get("components");
-        devices = new LinkedList<>();
+        componentsList = new LinkedList<>();
 
         for (int i = 0; i < components.size(); i++) {
-            devices.add(new Device((JSONObject) components.get(i)));
+            componentsList.add(new Component((JSONObject) components.get(i)));
         }
     }
 
-    private void extractDevices(String components) {
+    private void extractComponents(String components) {
         JSONParser jsonParser = new JSONParser();
         Object parsed = null;
+
         try {
             parsed = (Object) jsonParser.parse(components);
-        } catch (ParseException e) {
+        } catch (org.json.simple.parser.ParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         JSONArray componentsArray = (JSONArray) parsed;
         for (int i = 0; i < componentsArray.size(); i++) {
-            devices.add(new Device((JSONObject) componentsArray.get(i)));
+            componentsList.add(new Component((JSONObject) componentsArray.get(i)));
         }
     }
 
@@ -73,7 +72,7 @@ public class Topology {
     private void createObject(String id, String components) {
         jsonObject = new JSONObject();
         jsonObject.put("id", id);
-        jsonObject.put("components", devices.toString()); // TODO: CHECK IT
+        jsonObject.put("components", componentsList.toString()); // TODO: CHECK IT
     }
 
     /**
@@ -87,26 +86,26 @@ public class Topology {
     }
 
     /**
-     * Return LinkedList of Device Class
+     * Return LinkedList of Component Class
      * 
-     * @return {@link LinkedList <Device>}
+     * @return {@link LinkedList <{@link Component}>
      */
-    public LinkedList<Device> getConnectedDevices() {
-        return this.devices;
+    public LinkedList<Component> getComponents() {
+        return this.componentsList;
     }
 
     /**
-     * Return the connected devices as String.
+     * Return the connected components objects as String.
      * 
      * @return {@link String}
      */
-    public String getConnectedDevicesAsString() {
+    public String getComponentsAsString() {
         StringBuilder str = new StringBuilder();
         str.append("[");
 
-        for (int i = 0; i < devices.size(); i++) {
-            str.append(devices.get(i).toString());
-            if (i < devices.size() - 1) {
+        for (int i = 0; i < componentsList.size(); i++) {
+            str.append(componentsList.get(i).toString());
+            if (i < componentsList.size() - 1) {
                 str.append(",");
             }
         }
@@ -114,8 +113,20 @@ public class Topology {
         return str.toString();
     }
 
+    /**
+     * Return the connected components types
+     * as LinkedList of String.
+     * 
+     * @return {@link LinkedList <{@link String}>
+     */
+    public LinkedList<String> getComponentsTypes() {
+        LinkedList<String> componentsTypes = new LinkedList<>();
+        for (Component component : componentsList) {
+            componentsTypes.add(component.getType());
+        }
+        return componentsTypes;
+    }
 
-    
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
@@ -123,7 +134,7 @@ public class Topology {
         str.append(String.format("\"id\":\"%1$s\"", id));
         str.append(",");
         str.append("\"components\":");
-        str.append(getConnectedDevicesAsString());
+        str.append(getComponentsAsString());
         str.append("}");
 
         return str.toString();
