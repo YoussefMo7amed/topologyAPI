@@ -7,16 +7,18 @@ import java.util.Set;
 import org.json.simple.JSONObject;
 
 public class Device {
-    private String id="";
-    private String type="";
-    private JSONObject netList=null;
-    private Map<String, String> otherObjects=null;
+    private JSONObject device = null;
+    private String id = null;
+    private String type = null;
+    private JSONObject netList = null;
+    private Map<String, String> otherObjects = null;
 
     public Device() {
 
     }
 
     public Device(JSONObject device) {
+        this.device = device;
         extractID(device);
         extractType(device);
         extractNetList(device);
@@ -57,14 +59,25 @@ public class Device {
         }
     }
 
+    private void createJSONObject(String type, String Id) {
+        device.put("id", id);
+        device.put("type", type);
+    }
+
+    private void createJSONObject(String type, String Id, JSONObject netList) {
+        device = new JSONObject();
+        device.put("id", id);
+        device.put("type", type);
+        device.put("netlist", netList.toJSONString());
+    }
+
     /**
      * Return the device ID
      * 
      * @return String
      */
-
     public String getId() {
-        return id;
+        return this.id;
     }
 
     /**
@@ -91,6 +104,39 @@ public class Device {
      * @return {@link Map <String,String>}
      */
     public Map<String, String> getOtherObjects() {
-        return otherObjects;
+        return this.otherObjects;
+    }
+
+    /**
+     * Return Device as JSON object
+     * 
+     * @return {@link JSONObject }
+     */
+    public JSONObject getDeviceObject() {
+        if (device == null) {
+            if (netList == null) {
+                createJSONObject(this.type, this.id);
+            } else {
+                createJSONObject(this.type, this.id, this.netList);
+            }
+        }
+        return this.device;
+    }
+
+    /**
+     * create new object inside the device
+     */
+    public void createSubJSONObject(String key, String value) {
+        otherObjects.put(key, value);
+    }
+
+    /**
+     * Return The Device JSON Object as String
+     * 
+     * @return {@link Stirng}
+     */
+    @Override
+    public String toString() {
+        return device.toJSONString();
     }
 }
