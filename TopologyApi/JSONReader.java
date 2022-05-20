@@ -15,8 +15,9 @@ public class JSONReader {
     JSONObject jsonObject = new JSONObject();
     FileReader reader = null;
 
-    public JSONReader(String path) {
+    public JSONReader(String path) throws FileNotFoundException {
         this.path = path;
+        reader = readFile(path);
     }
 
     private FileReader readFile(String path) throws FileNotFoundException {
@@ -32,12 +33,13 @@ public class JSONReader {
     private JSONObject getJSONObject(FileReader reader) {
         JSONParser jsonParser = new JSONParser();
         try {
-            BufferedReader bR = new BufferedReader(reader);
-            Object object = jsonParser.parse(bR.lines().collect(Collectors.joining()));
+            BufferedReader br = new BufferedReader(reader);
+            Object object = jsonParser.parse(br.lines().collect(Collectors.joining()));
+            br.close();
+            close();
             jsonObject = (JSONObject) object;
-        } catch (ParseException e) {
+        } catch (ParseException | IOException e) {
             return null;
-
         }
         return jsonObject;
     }
@@ -49,7 +51,7 @@ public class JSONReader {
      */
     public JSONObject read() {
         try {
-            return getJSONObject(readFile(this.path));
+            return getJSONObject(reader);
         } catch (Exception e) {
             return null;
         }

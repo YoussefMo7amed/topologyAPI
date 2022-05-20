@@ -127,6 +127,10 @@ public class Topology {
         return componentsTypes;
     }
 
+    public JSONObject toJSONObject() {
+        return jsonObject;
+    }
+
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
